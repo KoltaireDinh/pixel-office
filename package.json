@@ -1,0 +1,21 @@
+{
+  "name": "pixel-office",
+  "version": "0.1.0",
+  "private": true,
+  "description": "8-bit pixel house that shows reels-squad Claude Code agents at work",
+  "type": "module",
+  "main": "src/main/main.js",
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\"",
+    "start": "electron .",
+    "preview": "node src/main/server-cli.js",
+    "demo": "node scripts/demo.js",
+    "setup": "node scripts/setup.js"
+  },
+  "devDependencies": {
+    "electron": "^44.9.3"
+  },
+  "dependencies": {
+    "@fontsource/vt323": "^5.3.0"
+  }
+}
