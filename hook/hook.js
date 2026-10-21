@@ -36,7 +36,7 @@ async function main() {
   }
 
   if (input.hook_event_name === 'PostToolUse' && ['Bash', 'PowerShell'].includes(input.tool_name)
-      && LAUNCH.test(input.tool_input?.command ?? '') && !findByManagerSession(dir, input.session_id)) {
+      && LAUNCH.test(input.tool_input?.command ?? '')) {
     const sq = claimNewest(dir, input.session_id, now);
     if (sq) await post({ squad: sq.squad, role: 'manager', kind: 'manager_join', cat: null, to: null, head: null, session: input.session_id, ts: now });
     return;

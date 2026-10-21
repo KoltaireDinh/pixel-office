@@ -74,6 +74,33 @@ test('manager joins via launch.ps1 then is recognised', async () => {
   assert.equal(readSquads(dir)[0].managerSession, 'M');
 });
 
+test('second full launch from the same manager session moves the manager to the new squad', async () => {
+  const srv = await fakeServer();
+  const dir = freshDir();
+  const env = { PIXEL_OFFICE_SQUADS_DIR: dir, PIXEL_OFFICE_PORT: String(srv.port) };
+  const launch = { hook_event_name: 'PostToolUse', session_id: 'M', tool_name: 'PowerShell',
+    tool_input: { command: 'powershell -File C:\\x\\reels-squad\\scripts\\launch.ps1 -Manager mgr' } };
+  writeSquad(dir, { squad: 'sq-1', managerName: 'mgr', managerSession: null, createdAt: Date.now() - 1000 });
+  await runHook(launch, env);
+  writeSquad(dir, { squad: 'sq-2', managerName: 'mgr', managerSession: null, createdAt: Date.now() });
+  await runHook(launch, env);
+  await runHook({ hook_event_name: 'Stop', session_id: 'M' }, env);
+  srv.close();
+  assert.deepEqual(srv.got.map((e) => [e.kind, e.squad]), [['manager_join', 'sq-1'], ['manager_join', 'sq-2'], ['stop', 'sq-2']]);
+});
+
+test('restarted manager (new session, reused squad marked claimable) is recognised', async () => {
+  const srv = await fakeServer();
+  const dir = freshDir();
+  const env = { PIXEL_OFFICE_SQUADS_DIR: dir, PIXEL_OFFICE_PORT: String(srv.port) };
+  writeSquad(dir, { squad: 'sq-old', managerName: 'mgr-2', managerSession: null, createdAt: Date.now() - 3600000, claimableAt: Date.now() });
+  await runHook({ hook_event_name: 'PostToolUse', session_id: 'NEW', tool_name: 'Bash',
+    tool_input: { command: 'powershell -File C:/x/reels-squad/scripts/launch.ps1 -Manager mgr-2 -Only coder' } }, env);
+  await runHook({ hook_event_name: 'Stop', session_id: 'NEW' }, env);
+  srv.close();
+  assert.deepEqual(srv.got.map((e) => [e.kind, e.squad]), [['manager_join', 'sq-old'], ['stop', 'sq-old']]);
+});
+
 test('unknown session is ignored', async () => {
   const srv = await fakeServer();
   await runHook({ hook_event_name: 'Stop', session_id: 'X' }, { PIXEL_OFFICE_SQUADS_DIR: freshDir(), PIXEL_OFFICE_PORT: String(srv.port) });

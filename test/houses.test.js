@@ -75,17 +75,43 @@ test('house ends when all 4 children ended', () => {
   assert.equal(r.list(3)[0].endedAt, 3);
 });
 
-test('house ends when manager session_end', () => {
+test('manager session_end (restart or /clear) does not end the house', () => {
   const r = createRegistry();
   r.apply(start(), 0);
   r.apply(ev('session_end'), 5);
-  assert.equal(r.list(5)[0].endedAt, 5);
+  const [h] = r.list(5);
+  assert.equal(h.endedAt, null);
+  assert.equal(h.members.manager.present, false);
+});
+
+test('squad_start for an existing house updates the manager name', () => {
+  const r = createRegistry();
+  r.apply(start(), 0);
+  r.apply(start({ managerName: 'mgr-new', replace: false }), 1);
+  assert.equal(r.list(1)[0].managerName, 'mgr-new');
+});
+
+test('house with no events for 12 hours disappears', () => {
+  const r = createRegistry();
+  r.apply(start(), 0);
+  r.apply(ev('tool', { role: 'coder', cat: 'edit' }), 1000);
+  assert.equal(r.list(1000 + 12 * 3600000 - 1).length, 1);
+  assert.equal(r.list(1000 + 12 * 3600000).length, 0);
+});
+
+test('invalid events are rejected', () => {
+  const r = createRegistry();
+  r.apply(start(), 0);
+  assert.equal(r.apply(ev('tool', { role: '__proto__' }), 1), false);
+  assert.equal(r.apply(ev('bogus', { role: 'coder' }), 1), false);
+  assert.equal(r.apply(start({ squad: 'x'.repeat(65) }), 1), false);
+  assert.equal({}.present, undefined);
 });
 
 test('ended house disappears after 600000 ms', () => {
   const r = createRegistry();
   r.apply(start(), 0);
-  r.apply(ev('session_end'), 5);
+  for (const role of ['researcher', 'prompt', 'coder', 'styler']) { r.apply(ev('session_start', { role, session: role }), 1); r.apply(ev('session_end', { role, session: role }), 5); }
   assert.equal(r.list(600004).length, 1);
   assert.equal(r.list(600005).length, 0);
 });

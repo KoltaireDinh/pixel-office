@@ -33,9 +33,9 @@ export function findByManagerSession(dir, sessionId) {
   return readSquads(dir).find((s) => s.managerSession === sessionId) ?? null;
 }
 
-// Give the newest unclaimed squad (created within maxAgeMs) to this manager session.
+// Give the newest unclaimed squad (created, or re-opened by launch.ps1 -Only, within maxAgeMs) to this manager session.
 export function claimNewest(dir, sessionId, now, maxAgeMs = 120000) {
-  const s = readSquads(dir).find((q) => !q.managerSession && now - (q.createdAt ?? 0) <= maxAgeMs);
+  const s = readSquads(dir).find((q) => !q.managerSession && now - (q.claimableAt ?? q.createdAt ?? 0) <= maxAgeMs);
   if (!s) return null;
   s.managerSession = sessionId;
   writeSquad(dir, s);

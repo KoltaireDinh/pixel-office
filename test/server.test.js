@@ -34,6 +34,27 @@ test('server: health, static, traversal, bad json', async () => {
   });
 });
 
+test('server: null byte in url does not crash the server', async () => {
+  await withServer(async (port) => {
+    assert.equal((await request(port, 'GET', '/%00x')).status, 404);
+    assert.equal((await request(port, 'GET', '/health')).body, 'ok');
+  });
+});
+
+test('server: rejects non-JSON content type and invalid events', async () => {
+  await withServer(async (port) => {
+    const body = JSON.stringify({ squad: 'sq-1', role: 'manager', kind: 'squad_start', managerName: 'm', ts: 1 });
+    const plain = await new Promise((resolve) => {
+      const req = http.request({ host: '127.0.0.1', port, path: '/event', method: 'POST', headers: { 'content-type': 'text/plain' } },
+        (res) => { res.resume(); resolve(res.statusCode); });
+      req.end(body);
+    });
+    assert.equal(plain, 415);
+    assert.equal((await request(port, 'POST', '/event', JSON.stringify({ squad: 'sq-1', role: '__proto__', kind: 'stop' }))).status, 400);
+    assert.equal((await request(port, 'POST', '/event', body)).status, 200);
+  });
+});
+
 test('server: shared modules are served for the renderer', async () => {
   await withServer(async (port) => {
     const r = await request(port, 'GET', '/shared/protocol.js');
