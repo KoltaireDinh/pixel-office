@@ -28,7 +28,7 @@ html, body { margin: 0; height: 100%; background: transparent; overflow: hidden;
 
 #empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 
-.bub { position: absolute; transform: translate(-50%, -100%); font-size: calc(5px * var(--s) + 5px); line-height: 1; color: var(--ink);
+.bub { position: absolute; transform-origin: var(--tail, 50%) 100%; font-size: calc(5px * var(--s) + 5px); line-height: 1; color: var(--ink);
   background: var(--paper); padding: 2px 5px 3px; white-space: nowrap; pointer-events: none; z-index: 3;
   box-shadow: 0 -3px 0 0 var(--paper), 0 3px 0 0 var(--paper), -3px 0 0 0 var(--paper), 3px 0 0 0 var(--paper),
     0 -6px 0 0 var(--ink), 0 6px 0 0 var(--ink), -6px 0 0 0 var(--ink), 6px 0 0 0 var(--ink),
@@ -39,4 +39,4 @@ html, body { margin: 0; height: 100%; background: transparent; overflow: hidden;
   box-shadow: 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink); }
 .bub.think::after { bottom: -15px; box-shadow: 0 0 0 3px var(--ink); }
 .bub.think::before { content: ''; position: absolute; left: var(--tail, 50%); bottom: -24px; margin-left: 3px; width: 3px; height: 3px; background: var(--paper); box-shadow: 0 0 0 3px var(--ink); }
-@keyframes pop { from { transform: translate(-50%, -80%) scale(.6); } }
+@keyframes pop { from { transform: scale(.6); } }

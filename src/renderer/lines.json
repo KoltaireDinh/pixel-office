@@ -1,0 +1,67 @@
+{
+  "manager": {
+    "work": ["Ai xong chưa nào?", "Để sếp xem PLAN...", "Video này phải viral!", "QA kỹ vào nhé", "Cập nhật PLAN cái đã"],
+    "type_fast": ["Giao việc tiếp nè!", "Gõ nhanh cho kịp", "Chạy lệnh tí thôi", "Xong bước này là ngon"],
+    "render": ["Render đi em ơi...", "Máy kêu to ghê", "Sắp có v2 rồi!", "Đừng cháy máy nha"],
+    "read": ["Đọc báo cáo đã...", "Hmm, ổn đấy...", "Soát lại cho chắc...", "Chỗ này lạ nhỉ..."],
+    "browse": ["Xem lại video gốc", "Kênh này hay thật", "So với bản gốc...", "Ồ cảnh này đỉnh"],
+    "phone": ["Alo, gọi trợ lý!", "Nhờ em xử lý giúp", "Ừ, làm nhanh nhé", "Alo alo!"],
+    "walk": ["Việc mới cho {to}!", "TASK {task} đây!", "{to} ơi, có việc!", "Giao {to} nè!"],
+    "alert": ["Bạn ơi, feedback?", "Duyệt giúp sếp nha!", "Chờ bạn quyết nè!", "Bạn xem thử chưa?"],
+    "rest": ["Cà phê ngon thật~", "Team mình giỏi ghê", "Nghỉ 5 phút thôi", "Hôm nay ổn áp..."],
+    "sleep": ["z z z", "Mơ thấy triệu view...", "Khò khò...", "Deadline... z z"],
+    "confused": ["Ơ, sao lỗi vậy?", "Khoan đã...", "Lạ ghê ta", "Thử lại xem nào"]
+  },
+  "researcher": {
+    "work": ["Kênh này view khủng!", "Video #1 hot nhất", "Ghi số liệu lại", "Xếp hạng nào..."],
+    "type_fast": ["Tải thêm 5 video...", "yt-dlp chạy đi!", "Tải về hết nhé", "Lấy thêm metadata"],
+    "render": ["Cắt khung hình...", "ffmpeg ơi nhanh lên", "Trích frame nào", "Máy nóng quá!"],
+    "read": ["Để tôi soi kỹ...", "Manh mối đây rồi!", "Số view này lạ...", "Điều tra tiếp..."],
+    "browse": ["Lướt kênh tí...", "Reel này hay nè!", "Like 1 triệu luôn", "Lưu cái này lại"],
+    "phone": ["Alo, nhờ tra giúp", "Tìm hộ cái kênh", "Có tin mới chưa?", "Ừ, gửi link nhé"],
+    "walk": ["Gửi {to} danh sách!", "Xếp hạng xong rồi!", "Có video ngon nè", "{to} ơi, xem này!"],
+    "alert": ["IG bắt đăng nhập!", "Cần bạn giúp nè!", "Bị chặn rồi bạn ơi", "Cho xin quyền nha!"],
+    "rest": ["Lướt reels tí thôi", "Ơ con mèo dễ thương", "Nghỉ mắt chút...", "Kênh này hay ghê"],
+    "sleep": ["z z z", "Mơ thấy manh mối...", "Khò... view...", "z z... điều tra..."],
+    "confused": ["Link chết rồi?", "Ơ, mất video!", "Sao tải lỗi nhỉ", "Hmm, khó hiểu ghê"]
+  },
+  "prompt": {
+    "work": ["Hook 2 giây đầu...", "Câu này hay nè!", "Viết lại lần 3...", "Nhịp hơi chậm...", "Thêm cảm xúc vào"],
+    "type_fast": ["Viết lia lịa luôn!", "Cảm hứng tới rồi!", "Ghi kịp không ta", "Chốt prompt nào"],
+    "render": ["Chờ máy chạy...", "Lâu thế nhỉ...", "Thử bản mới xem", "Hồi hộp ghê"],
+    "read": ["Đọc transcript...", "Ý này được nè...", "Chi tiết nhỏ thôi...", "Ghi chú lại..."],
+    "browse": ["Xem lại cảnh 3", "Ồ, góc quay đẹp", "Tua lại tí nào", "Cảnh này cảm động"],
+    "phone": ["Nhờ tra giúp nhé", "Alo, cần dữ liệu", "Gửi mình bản nháp", "Cảm ơn nha!"],
+    "walk": ["Prompt xong rồi!", "Gửi {to} bản mới", "TASK {task} xong!", "{to} ơi, đọc thử!"],
+    "alert": ["Xem prompt giúp mình!", "Bạn duyệt nhé?", "Cần bạn góp ý!", "Chọn hướng nào đây?"],
+    "rest": ["Mơ thấy prompt...", "Uống trà đã...", "Nhìn trăng tí...", "Nghĩ tiếp sau..."],
+    "sleep": ["z z z", "Khò... hook...", "Mơ thấy câu chữ...", "z z... nhịp..."],
+    "confused": ["Ơ, mất ý rồi", "Câu này sai à?", "Viết lại thôi...", "Bí ý tưởng ghê"]
+  },
+  "coder": {
+    "work": ["Bug ở đâu ta?", "Thêm animation nè", "Code chạy ngon!", "Sửa tí CSS thôi", "Refactor cái nhẹ"],
+    "type_fast": ["Gõ phím bốc khói!", "Chạy lệnh nào!", "npm chạy đi!", "Test pass chưa?"],
+    "render": ["Render 60%...", "ffmpeg ơi nhanh lên", "Quạt máy cái đã!", "Sắp ra mp4 rồi!"],
+    "read": ["Đọc code cũ...", "Ai viết cái này...", "À ra là vậy...", "Tìm file đã..."],
+    "browse": ["Xem video gốc...", "Cảnh này khó đây", "Tua chậm lại xem", "Đếm frame nào"],
+    "phone": ["Gọi trợ lý tí", "Nhờ check giúp", "Alo, test hộ nhé", "Ừ, chạy song song"],
+    "walk": ["v1.mp4 xong nha!", "Gửi {to} bản mới!", "TASK {task} xong!", "{to} ơi, xem nè!"],
+    "alert": ["Cho xin quyền chạy!", "Bạn ơi duyệt lệnh!", "Kẹt rồi, giúp với!", "Chạy lệnh này nhé?"],
+    "rest": ["Combo x10!", "Nhạc này cháy quá", "Thắng ván nữa nè", "Nghỉ tay tí..."],
+    "sleep": ["z z z", "Khò... bug...", "Mơ thấy 0 lỗi...", "z z... render..."],
+    "confused": ["Lỗi gì đây trời?", "Hôm qua còn chạy!", "Stack trace dài ghê", "Thử lại phát nữa"]
+  },
+  "styler": {
+    "work": ["Thêm tí ánh sáng...", "Low poly đẹp chưa?", "Đổi màu hoàng hôn!", "Bóng đổ chuẩn chưa?", "Tăng độ bóng nào"],
+    "type_fast": ["Chỉnh màu lia lịa", "Thêm hiệu ứng!", "Cảnh này phải chất", "Nhanh tay nào~"],
+    "render": ["Render bản đẹp...", "Chờ xíu nha~", "Ánh sáng lên chưa?", "Mong là đẹp..."],
+    "read": ["Xem bảng màu...", "Ghi chú màu sắc...", "Hmm, tông ấm...", "So sánh bản cũ..."],
+    "browse": ["Xem cảnh gốc~", "Màu này đẹp ghê", "Học lỏm tí nào", "Góc máy hay quá"],
+    "phone": ["Alo, gửi texture!", "Nhờ xuất hộ ảnh", "Ừ, chỉnh màu nhé", "Cảm ơn nha~"],
+    "walk": ["Style xong rồi!", "Gửi {to} bản đẹp!", "TASK {task} xong!", "{to} ơi, xem màu!"],
+    "alert": ["Duyệt màu giúp mình!", "Bạn thích tông nào?", "Xem thử bản này?", "Cần bạn chọn nè!"],
+    "rest": ["Vươn vai cái nào~", "Hôm nay đẹp trời", "Ngắm trăng tí...", "Pha màu cho vui"],
+    "sleep": ["z z z", "Mơ thấy cầu vồng...", "Khò... màu...", "z z... low poly..."],
+    "confused": ["Ơ, màu bị lệch?", "Sao tối thui vậy", "Mất texture rồi!", "Làm lại thôi..."]
+  }
+}
