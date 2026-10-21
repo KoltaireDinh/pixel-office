@@ -34,6 +34,15 @@ test('server: health, static, traversal, bad json', async () => {
   });
 });
 
+test('server: shared modules are served for the renderer', async () => {
+  await withServer(async (port) => {
+    const r = await request(port, 'GET', '/shared/protocol.js');
+    assert.equal(r.status, 200);
+    assert.match(r.body, /CHAR_NAMES/);
+    assert.equal((await request(port, 'GET', '/favicon.ico')).status, 204);
+  });
+});
+
 test('server: font route serves VT323', async () => {
   await withServer(async (port) => {
     assert.equal((await request(port, 'GET', '/fonts/vt323-vietnamese-400-normal.woff2')).status, 200);

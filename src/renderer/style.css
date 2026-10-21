@@ -26,7 +26,7 @@ html, body { margin: 0; height: 100%; background: transparent; overflow: hidden;
 #nav.on { display: flex; }
 #nav button { font: inherit; color: var(--gold); background: rgba(14, 11, 46, .85); border: 1px solid var(--gold); padding: 0 4px; cursor: pointer; }
 
-#empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+#bubbles { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
 
 .bub { position: absolute; transform-origin: var(--tail, 50%) 100%; font-size: calc(5px * var(--s) + 5px); line-height: 1; color: var(--ink);
   background: var(--paper); padding: 2px 5px 3px; white-space: nowrap; pointer-events: none; z-index: 3;

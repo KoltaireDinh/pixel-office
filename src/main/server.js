@@ -7,6 +7,7 @@ import { DEFAULT_PORT } from '../shared/protocol.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const FONT_DIR = path.join(ROOT, 'node_modules', '@fontsource', 'vt323', 'files');
+const SHARED_DIR = path.join(ROOT, 'src', 'shared');
 const MAX_BODY = 4096;
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.woff2': 'font/woff2', '.woff': 'font/woff' };
@@ -51,7 +52,9 @@ export function startServer({ port = DEFAULT_PORT, host = '127.0.0.1', staticDir
       req.on('close', () => clients.delete(res));
       return;
     }
+    if (url === '/favicon.ico') { res.writeHead(204).end(); return; }
     if (url.startsWith('/fonts/')) { serveFile(res, FONT_DIR, url.slice('/fonts/'.length)); return; }
+    if (url.startsWith('/shared/')) { serveFile(res, SHARED_DIR, url.slice('/shared/'.length)); return; }
     serveFile(res, staticDir, url === '/' ? 'index.html' : url.slice(1));
   });
 
