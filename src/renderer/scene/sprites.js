@@ -51,6 +51,8 @@ export function guy(g, role, ox, y, f, o = {}) {
   else if (o.headScratch) sp(hx + 4, hy + 7, 3, 1, '#7a3a4a');
 
   const h = c.hair;
+  // Seen from behind: the face is covered by hair (hats and headphones still drawn below).
+  if (o.back) { sp(hx + 1, hy, 8, 8, h); sp(hx, hy + 1, 10, 6, h); sp(hx + 2, hy + 7, 6, 1, dk(c.skin, 0.86)); }
   if (role === 'manager') { sp(hx + 1, hy - 1, 8, 2, h); sp(hx, hy, 10, 2, h); sp(hx, hy + 2, 1, 2, h); sp(hx + 9, hy + 2, 1, 2, h); sp(hx + 2, hy - 1, 3, 1, dk(h, 1.5)); }
   if (role === 'researcher') { sp(hx - 1, hy, 12, 2, '#8a5a2e'); sp(hx + 1, hy - 3, 8, 3, '#8a5a2e'); sp(hx + 1, hy - 1, 8, 1, '#4a2e16'); sp(hx + 2, hy - 3, 3, 1, '#a87a46'); sp(hx, hy + 2, 1, 3, h); sp(hx + 9, hy + 2, 1, 3, h); }
   if (role === 'prompt') { sp(hx, hy - 1, 10, 3, h); sp(hx - 1, hy + 1, 2, 10, h); sp(hx + 9, hy + 1, 2, 10, h); sp(hx + 1, hy - 2, 8, 1, h); sp(hx + 2, hy - 1, 3, 1, dk(h, 1.35)); sp(hx + 10, hy - 2, 1, 3, '#ffd84a'); }

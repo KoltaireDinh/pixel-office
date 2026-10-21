@@ -6,13 +6,15 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="drag"></div>
 <div id="frame">
-  <canvas id="scene" width="128" height="224"></canvas>
-  <div id="drag"></div>
-  <div id="top"><div class="a" id="t1">REELS SQUAD</div><div class="b" id="t2">5 AGENT</div><div class="a" id="t3">ĐANG LÀM VIỆC</div></div>
+  <canvas id="scene" width="400" height="300"></canvas>
   <div id="bubbles"></div>
-  <div id="nav"><button id="prev">◀</button><span id="navLabel"></span><button id="next">▶</button></div>
-  <div id="ticker"></div>
+  <div id="bar">
+    <span id="hud"><span id="t1">REELS SQUAD</span> · <b id="t2">5 AGENT</b> · <span id="t3">ĐANG LÀM VIỆC</span></span>
+    <span id="ticker"></span>
+    <span id="nav"><button id="prev">◀</button><span id="navLabel"></span><button id="next">▶</button></span>
+  </div>
 </div>
 <script type="module" src="app.js"></script>
 </body>

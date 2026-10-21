@@ -82,8 +82,10 @@ export function resolveOverlap(rects, bounds, gap = 4) {
 
 // DOM side: one element per speaking role, positioned over the canvas.
 export function mountBubbles(container, scale) {
+  const sc = typeof scale === 'function' ? scale : () => scale;
   const els = new Map();
   function update(bubbles, anchors) {
+    const scale = sc();
     for (const [role, el] of els) if (!bubbles.some((b) => b.role === role)) { el.remove(); els.delete(role); }
     const items = [];
     for (const b of bubbles) {

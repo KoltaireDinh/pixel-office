@@ -1,6 +1,4 @@
-// Pixel buffer for the 128x224 scene: background pixels, a sprite layer with soft outlines, emissive mask.
-
-export const W = 128, H = 224;
+// Pixel buffer for a scene: background pixels, a sprite layer with soft outlines, emissive mask.
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const cache = {};
 
@@ -16,7 +14,7 @@ export function dk(h, k) {
 
 export const bay = (x, y) => BAYER[(x & 3) + ((y & 3) << 2)] / 16;
 
-export function createGfx(ctx) {
+export function createGfx(ctx, W, H) {
   const img = ctx.createImageData(W, H), buf = img.data;
   const emis = new Uint8Array(W * H);
   const lay = new Array(W * H), layE = new Uint8Array(W * H);
@@ -49,6 +47,9 @@ export function createGfx(ctx) {
     for (let i = 0; i < W * H; i++) if (lay[i]) px(i % W, (i / W) | 0, lay[i], layE[i]);
   }
   function present() { ctx.putImageData(img, 0, 0); }
+  // Snapshot / restore the background so static scenery is drawn once.
+  function snapshot() { return { buf: new Uint8ClampedArray(buf), emis: new Uint8Array(emis) }; }
+  function restore(s) { buf.set(s.buf); emis.set(s.emis); }
 
-  return { buf, emis, px, rect, sp, clearLayer, flushLayer, present };
+  return { W, H, buf, emis, px, rect, sp, clearLayer, flushLayer, present, snapshot, restore };
 }

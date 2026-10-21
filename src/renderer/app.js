@@ -1,20 +1,27 @@
 // Renderer entry: SSE events -> per-character brains -> pixel scene + bubbles + ticker.
 // ?debug=all cycles every character through every action (for visual checks).
 import { createScene, ORDER } from './scene/draw.js';
-import { walkMs } from './scene/paths.js';
+import { walkMs } from './scene/nav.js';
 import { createBrain } from './brain.js';
 import { createBubbleScheduler, mountBubbles } from './bubbles.js';
 import { CHAR_NAMES } from '../shared/protocol.js';
 
 const params = new URLSearchParams(location.search);
-const scale = Number(params.get('scale')) === 3 ? 3 : 2;
-document.documentElement.style.setProperty('--s', scale);
+const SCENE_W = 400, SCENE_H = 300;
+// Largest whole-number zoom that fits the window keeps pixels crisp; the rest is a dark border.
+let scale = 2;
+function fit() {
+  scale = Math.max(1, Math.floor(Math.min(innerWidth / SCENE_W, innerHeight / SCENE_H)));
+  document.documentElement.style.setProperty('--s', scale);
+}
+addEventListener('resize', fit);
+fit();
 
 const $ = (id) => document.getElementById(id);
 const scene = createScene($('scene'));
 const lines = await fetch('lines.json').then((r) => r.json());
 const scheduler = createBubbleScheduler({ lines });
-const bubbles = mountBubbles($('bubbles'), scale);
+const bubbles = mountBubbles($('bubbles'), () => scale);
 
 const VERB = { work: 'làm việc', type_fast: 'gõ lệnh', render: 'render video', read: 'đọc tài liệu', browse: 'xem video',
   phone: 'gọi trợ lý', walk: 'đưa thư', alert: 'chờ bạn', rest: 'nghỉ ngơi', sleep: 'ngủ gật', confused: 'gặp lỗi',
@@ -120,7 +127,7 @@ function frame() {
 
     const [a, b, c, cls] = headline(house, chars);
     const top = `${a}|${b}|${c}|${cls}`;
-    if (top !== lastTop) { lastTop = top; $('t1').textContent = a; $('t2').textContent = b; $('t3').textContent = c; $('t3').className = `a ${cls}`; }
+    if (top !== lastTop) { lastTop = top; $('t1').textContent = a; $('t2').textContent = b; $('t3').textContent = c; $('t3').className = cls; }
     const t = tickerText(house, chars);
     if (t !== lastTicker) { lastTicker = t; $('ticker').textContent = t; }
   }
