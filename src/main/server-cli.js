@@ -8,4 +8,4 @@ import { DEFAULT_PORT } from '../shared/protocol.js';
 const staticDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'renderer');
 const port = Number(process.env.PIXEL_OFFICE_PORT) || DEFAULT_PORT;
 const srv = await startServer({ port, staticDir, registry: createRegistry() });
-console.log(`Pixel Office preview: http://127.0.0.1:${srv.port}/?scale=3`);
+console.log(`Pixel Office preview: http://127.0.0.1:${srv.port}/`);

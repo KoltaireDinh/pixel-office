@@ -66,5 +66,11 @@ export function createBrain(role, { walkMs = () => 3000, initial = 'absent' } = 
     return { action, since, data };
   }
 
-  return { handle, tick };
+  // The scene calls this when the sender is actually back from a delivery.
+  function endWalk(now) {
+    if (action === 'walk' && lockUntil !== null && now < lockUntil) lockUntil = now;
+    tick(now);
+  }
+
+  return { handle, tick, endWalk };
 }

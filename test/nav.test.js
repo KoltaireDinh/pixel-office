@@ -58,3 +58,15 @@ test('walkMs is positive and longer for farther recipients', () => {
   assert.ok(walkMs('researcher', 'coder') > 0);
   assert.ok(walkMs('manager', 'styler') > walkMs('researcher', 'coder'));
 });
+
+test('path from inside a doorway goes through the door, not the wall', () => {
+  for (const start of [{ x: 256, y: 170 }, { x: 80, y: 160 }, { x: 128, y: 80 }, { x: 200, y: 230 }]) {
+    for (const spot of ['seat:manager', 'rest:researcher', 'rest:styler', 'sleep:coder']) {
+      const p = walkPath(start, spot);
+      const first = p[1];
+      assert.ok(DOORS.some((d) => same(first, d.pa) || same(first, d.pb)), `${JSON.stringify(start)} -> ${spot} first step ${JSON.stringify(first)}`);
+      assert.ok(first.x === start.x || first.y === start.y, 'first step axis-aligned');
+      assertWalkable(p.slice(1));
+    }
+  }
+});

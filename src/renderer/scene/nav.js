@@ -40,15 +40,6 @@ export function roomOf(p) {
   return null;
 }
 
-function nearestRoom(p) {
-  let best = 'work', bd = Infinity;
-  for (const [name, r] of Object.entries(ROOMS)) {
-    const dx = Math.max(r.x0 - p.x, 0, p.x - r.x1), dy = Math.max(r.y0 - p.y, 0, p.y - r.y1), d = dx * dx + dy * dy;
-    if (d < bd) { bd = d; best = name; }
-  }
-  return best;
-}
-
 function route(fromRoom, toRoom) {
   const prev = { [fromRoom]: null }, queue = [fromRoom];
   while (queue.length) {
@@ -71,10 +62,7 @@ function crossRoom(room, a, b) {
   return [{ x: lx, y: a.y }, { x: lx, y: b.y }, b];
 }
 
-export function walkPath(from, toSpot) {
-  const target = SPOTS[toSpot];
-  const start = { x: Math.round(from.x), y: Math.round(from.y) };
-  let room = roomOf(start) ?? nearestRoom(start);
+function routeFrom(start, room, target) {
   const pts = [start];
   let cur = start;
   for (const { door, from: r } of route(room, roomOf(target))) {
@@ -84,6 +72,37 @@ export function walkPath(from, toSpot) {
   }
   pts.push(...crossRoom(room, cur, target));
   return pts.filter((p, i) => i === 0 || p.x !== pts[i - 1].x || p.y !== pts[i - 1].y);
+}
+
+// The doorway someone is standing in (outside every room), as the door's two end points.
+function doorAt(p) {
+  let best = null, bd = Infinity;
+  for (const d of DOORS) {
+    const vertical = d.pa.x === d.pb.x;
+    const along = vertical ? p.x - d.pa.x : p.y - d.pa.y;
+    const within = vertical
+      ? p.y >= Math.min(d.pa.y, d.pb.y) && p.y <= Math.max(d.pa.y, d.pb.y)
+      : p.x >= Math.min(d.pa.x, d.pb.x) && p.x <= Math.max(d.pa.x, d.pb.x);
+    const dist = (within ? 0 : 1000) + Math.abs(along);
+    if (dist < bd) { bd = dist; best = d; }
+  }
+  return best;
+}
+
+export function walkPath(from, toSpot) {
+  const target = SPOTS[toSpot];
+  const start = { x: Math.round(from.x), y: Math.round(from.y) };
+  const room = roomOf(start);
+  if (room) return routeFrom(start, room, target);
+  // In a doorway: step out to whichever side of the door gives the shorter walk, then route normally.
+  const d = doorAt(start);
+  const viaA = routeFrom({ ...d.pa }, d.a, target), viaB = routeFrom({ ...d.pb }, d.b, target);
+  const best = pathLength(viaA) + Math.abs(start.x - d.pa.x) + Math.abs(start.y - d.pa.y)
+    <= pathLength(viaB) + Math.abs(start.x - d.pb.x) + Math.abs(start.y - d.pb.y) ? viaA : viaB;
+  const first = best[0];
+  // Line up with the door axis first so the step into the room never cuts through a wall.
+  const align = first.x === start.x || first.y === start.y ? [] : [d.pa.x === d.pb.x ? { x: first.x, y: start.y } : { x: start.x, y: first.y }];
+  return [start, ...align, ...best];
 }
 
 export function pathLength(path) {
@@ -103,9 +122,8 @@ export function spotFor(role, action, data) {
   return `seat:${role}`;
 }
 
-export const HANDOFF_MS = 600;
-
-// Time for a delivery: desk -> recipient -> back, plus a short handoff pause.
+// Upper bound for a delivery (the scene ends it earlier via brain.endWalk once the sender is back):
+// the longest possible trip there and back, plus slack.
 export function walkMs(role, to) {
-  return Math.round((pathLength(walkPath(SPOTS[`seat:${role}`], `stand:${to}`)) * 2 / WALK_SPEED) * 1000) + HANDOFF_MS;
+  return Math.round((pathLength(walkPath(SPOTS['rest:styler'], `stand:${to}`)) + pathLength(walkPath(SPOTS[`stand:${to}`], `seat:${role}`))) / WALK_SPEED * 1000) + 5000;
 }

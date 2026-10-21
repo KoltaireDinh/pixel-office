@@ -5,19 +5,22 @@ import { walkMs } from './scene/nav.js';
 import { createBrain } from './brain.js';
 import { createBubbleScheduler, mountBubbles } from './bubbles.js';
 import { CHAR_NAMES } from '../shared/protocol.js';
+import { fitScene } from './layout.js';
 
 const params = new URLSearchParams(location.search);
-const SCENE_W = 400, SCENE_H = 300;
-// Largest whole-number zoom that fits the window keeps pixels crisp; the rest is a dark border.
-let scale = 2;
+// Largest whole-number zoom (in device pixels) that fits the window keeps pixels crisp; the rest is a dark border.
+let scale = 2; // CSS px per scene px
 function fit() {
-  scale = Math.max(1, Math.floor(Math.min(innerWidth / SCENE_W, innerHeight / SCENE_H)));
+  const r = fitScene(innerWidth, innerHeight, devicePixelRatio || 1);
+  scale = r.scale / (devicePixelRatio || 1);
   document.documentElement.style.setProperty('--s', scale);
+  Object.assign($('frame').style, { width: `${r.cssW}px`, height: `${r.cssH}px`, left: `${r.left}px`, top: `${r.top}px` });
 }
-addEventListener('resize', fit);
-fit();
 
 const $ = (id) => document.getElementById(id);
+addEventListener('resize', fit);
+matchMedia(`(resolution: ${devicePixelRatio}dppx)`).addEventListener?.('change', fit);
+fit();
 const scene = createScene($('scene'));
 const lines = await fetch('lines.json').then((r) => r.json());
 const scheduler = createBubbleScheduler({ lines });
@@ -122,7 +125,8 @@ function frame() {
     else if (house) { const set = brainsFor(house); for (const r of ORDER) chars[r] = set[r].tick(now); }
     else for (const r of ORDER) chars[r] = { action: 'absent', since: 0, data: null };
     const dim = !house ? 0.25 : house.endedAt ? Math.max(0, 1 - (now - house.endedAt) / FADE_MS) : 1;
-    const anchors = scene.render(chars, f, now, { dim });
+    const anchors = scene.render(chars, f, now, { dim, houseId: house?.id ?? 'none' });
+    if (house && !debug) { const set = brainsFor(house); for (const r of scene.takeWalkDone()) set[r].endWalk(now); }
     bubbles.update(house && !house.endedAt ? scheduler.tick(now, chars) : [], anchors);
 
     const [a, b, c, cls] = headline(house, chars);

@@ -99,3 +99,18 @@ test('unknown kind is ignored', () => {
   b.handle(null, 6);
   assert.equal(b.tick(10).action, 'rest');
 });
+
+test('endWalk finishes a delivery early and applies the queued event', () => {
+  const b = mk(60000);
+  b.handle({ kind: 'send', to: 'manager' }, 0);
+  b.handle({ kind: 'stop' }, 100);
+  b.endWalk(5000);
+  assert.equal(b.tick(5000).action, 'rest');
+});
+
+test('endWalk does nothing when not walking', () => {
+  const b = mk();
+  b.handle({ kind: 'tool', cat: 'read' }, 0);
+  b.endWalk(10);
+  assert.equal(b.tick(10).action, 'read');
+});

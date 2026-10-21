@@ -5,8 +5,9 @@ import { applyLight } from './light.js';
 import { drawStatic, drawAnimated, CEILING_LIGHTS } from './house.js';
 import { furniture } from './furniture.js';
 import { guy, envelope } from './sprites.js';
-import { createMover } from './mover.js';
-import { spotFor, HANDOFF_MS, SCENE_W, SCENE_H } from './nav.js';
+import { createBodies } from './bodies.js';
+import { createDelivery } from './delivery.js';
+import { spotFor, SCENE_W, SCENE_H } from './nav.js';
 
 export const ORDER = ['manager', 'prompt', 'researcher', 'coder', 'styler'];
 const DESK_ACTIONS = new Set(['work', 'type_fast', 'read', 'browse', 'render', 'phone', 'confused']);
@@ -68,12 +69,13 @@ export function createScene(canvas) {
   const g = createGfx(ctx, SCENE_W, SCENE_H);
   drawStatic(g);
   const bg = g.snapshot();
-  const bodies = {};
-  const walks = {}; // role -> { since, delivered, at }
+  const bodies = createBodies();
+  const deliveries = new Map(); // `${house}:${role}` -> { since, d }
+  let walkDone = [];
   let lastNow = null;
 
   // chars: { [role]: {action, since, data} }, now in ms. Returns { [role]: [x, y] | null } in scene px.
-  function render(chars, f, now, { dim = 1 } = {}) {
+  function render(chars, f, now, { dim = 1, houseId = 'default' } = {}) {
     const dt = lastNow === null ? 0 : Math.min(500, Math.max(0, now - lastNow));
     lastNow = now;
     g.restore(bg);
@@ -87,18 +89,18 @@ export function createScene(canvas) {
     for (const role of ORDER) {
       const st = chars[role] ?? { action: 'absent', since: 0, data: null };
       let spot = spotFor(role, st.action, st.data);
-      if (!bodies[role]) {
-        bodies[role] = createMover(st.action === 'absent' || st.action === 'enter' ? 'gate' : spot);
-      }
-      const body = bodies[role];
-      // Deliveries: go to the recipient, hand over, then head back to the desk.
+      const body = bodies.get(houseId, role, st.action === 'absent' || st.action === 'enter' ? 'gate' : spot);
+      // Deliveries: go to the recipient, hand over, then head back to the desk; tell the brain when back.
+      let delivery = null;
       if (st.action === 'walk' && st.data?.to) {
-        const w = walks[role]?.since === st.since ? walks[role] : (walks[role] = { since: st.since, delivered: false, at: 0 });
-        if (w.delivered) spot = `seat:${role}`;
-        body.setTarget(spot);
-        const pos = body.step(dt);
-        if (!w.delivered && pos.arrived && body.target === spot) { w.delivered = true; w.at = now; }
-        if (w.delivered && now - w.at > HANDOFF_MS) body.setTarget(`seat:${role}`);
+        const key = `${houseId}:${role}`;
+        let entry = deliveries.get(key);
+        if (!entry || entry.since !== st.since) deliveries.set(key, (entry = { since: st.since, d: createDelivery(role, st.data.to), reported: false }));
+        delivery = entry.d;
+        body.setTarget(delivery.target(body.step(0), now));
+        body.step(dt);
+        body.setTarget(delivery.target(body.step(0), now));
+        if (delivery.done && !entry.reported) { entry.reported = true; walkDone.push(role); }
       } else {
         body.setTarget(spot);
         body.step(dt);
@@ -118,8 +120,7 @@ export function createScene(canvas) {
         const gg = { sp };
         if (!p.arrived) {
           guy(gg, role, x - 7, y - 21 - (f % 2), f, { walk: true, smile: true });
-          const w = walks[role];
-          if (st.action === 'walk' && w && !w.delivered) envelope(gg, p.dir > 0 ? x + 6 : x - 12, y - 11, /^\[(BLOCKED|FAIL)/.test(st.data?.head ?? ''));
+          if (delivery?.carrying) envelope(gg, p.dir > 0 ? x + 6 : x - 12, y - 11, /^\[(BLOCKED|FAIL)/.test(st.data?.head ?? ''));
           return;
         }
         if (atDesk) return deskPose(sp, role, x, y, f, st.action);
@@ -134,7 +135,7 @@ export function createScene(canvas) {
             return;
           }
           case 'walk':
-            if (walks[role]?.delivered && body.target === `seat:${role}`) return deskPose(sp, role, x, y, f, 'work');
+            if (!delivery || !delivery.handingOver(now)) return deskPose(sp, role, x, y, f, 'work');
             // handing over the envelope
             guy(gg, role, x - 7, y - 21, f, { raise: true, smile: true }); envelope(gg, x + 5, y - 26, false); return;
           case 'enter': return deskPose(sp, role, x, y, f, 'work');
@@ -154,5 +155,8 @@ export function createScene(canvas) {
     return anchors;
   }
 
-  return { render };
+  // Roles whose delivery walk finished since the last call.
+  function takeWalkDone() { const out = walkDone; walkDone = []; return out; }
+
+  return { render, takeWalkDone };
 }
