@@ -1,4 +1,4 @@
-// Electron shell: one always-on-top frameless window showing the pixel house, plus a tray icon.
+// Electron shell: one always-on-top, frameless, resizable 4:3 window showing the pixel house, plus a tray icon.
 import { app, BrowserWindow, Tray, Menu, nativeImage, dialog, screen } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,7 +7,7 @@ import { startServer } from './server.js';
 import { createRegistry } from './houses.js';
 import { DEFAULT_PORT } from '../shared/protocol.js';
 
-const W = 128, H = 224;
+const W = 400, H = 300, DEFAULT_W = 800, DEFAULT_H = 600;
 const staticDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'renderer');
 const port = Number(process.env.PIXEL_OFFICE_PORT) || DEFAULT_PORT;
 let win = null, tray = null;
@@ -33,27 +33,30 @@ function onScreen(x, y) {
 }
 
 function createWindow() {
-  const scale = prefs.scale === 3 ? 3 : 2;
-  const opts = { width: W * scale, height: H * scale, frame: false, transparent: true, alwaysOnTop: true, resizable: false,
-    hasShadow: false, backgroundColor: '#00000000', title: 'Pixel Office', skipTaskbar: false, show: false };
+  const width = Number.isFinite(prefs.width) ? Math.max(W, prefs.width) : DEFAULT_W;
+  const height = Number.isFinite(prefs.height) ? Math.max(H, prefs.height) : DEFAULT_H;
+  // Not transparent: Windows only lets you drag-resize the edges of an opaque frameless window.
+  const opts = { width, height, minWidth: W, minHeight: H, frame: false, transparent: false, alwaysOnTop: true, resizable: true,
+    backgroundColor: '#0a0818', title: 'Pixel Office', skipTaskbar: false, show: false };
   if (Number.isFinite(prefs.x) && Number.isFinite(prefs.y) && onScreen(prefs.x, prefs.y)) Object.assign(opts, { x: prefs.x, y: prefs.y });
   win = new BrowserWindow(opts);
+  win.setAspectRatio(W / H);
   win.setAlwaysOnTop(true, 'floating');
-  win.loadURL(`http://127.0.0.1:${port}/?scale=${scale}`);
+  win.loadURL(`http://127.0.0.1:${port}/`);
   win.once('ready-to-show', () => win.showInactive());
-  let moveTimer = null;
-  win.on('move', () => {
-    clearTimeout(moveTimer);
-    moveTimer = setTimeout(() => { if (!win) return; const [x, y] = win.getPosition(); prefs = { ...prefs, x, y }; savePrefs(prefs); }, 300);
-  });
+  let saveTimer = null;
+  const save = () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { if (!win) return; const b = win.getBounds(); prefs = { ...prefs, x: b.x, y: b.y, width: b.width, height: b.height }; savePrefs(prefs); }, 300);
+  };
+  win.on('move', save);
+  win.on('resize', save);
   win.on('closed', () => { win = null; });
 }
 
-function setScale(scale) {
-  prefs = { ...prefs, scale }; savePrefs(prefs);
+function resetSize() {
   if (!win) return createWindow();
-  win.setResizable(true); win.setSize(W * scale, H * scale); win.setResizable(false);
-  win.loadURL(`http://127.0.0.1:${port}/?scale=${scale}`);
+  win.setSize(DEFAULT_W, DEFAULT_H);
 }
 
 function showWindow() { if (!win) createWindow(); else { win.showInactive(); win.moveTop(); } }
@@ -76,8 +79,7 @@ if (!app.requestSingleInstanceLock()) {
     tray.setToolTip('Pixel Office');
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: 'Hiện / Ẩn', click: () => (win && win.isVisible() ? win.hide() : showWindow()) },
-      { label: 'Phóng ×2', click: () => setScale(2) },
-      { label: 'Phóng ×3', click: () => setScale(3) },
+      { label: 'Về 800×600', click: resetSize },
       { type: 'separator' },
       { label: 'Thoát', click: () => app.exit(0) },
     ]));
