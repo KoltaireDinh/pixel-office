@@ -6,9 +6,12 @@ import { fileURLToPath } from 'node:url';
 import { startServer } from './server.js';
 import { createRegistry } from './houses.js';
 import { DEFAULT_PORT } from '../shared/protocol.js';
+import { runtimeDir, settingsFile, hookCommand, syncRuntime, ensureHooks, uninstallHooks } from './install.js';
 
 const W = 400, H = 300, DEFAULT_W = 800, DEFAULT_H = 600;
-const staticDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'renderer');
+const here = path.dirname(fileURLToPath(import.meta.url));
+const staticDir = path.resolve(here, '..', 'renderer');
+const appRoot = path.resolve(here, '..', '..');
 const port = Number(process.env.PIXEL_OFFICE_PORT) || DEFAULT_PORT;
 let win = null, tray = null;
 
@@ -59,6 +62,18 @@ function resetSize() {
   win.setSize(DEFAULT_W, DEFAULT_H);
 }
 
+// Installed build: keep the hook scripts outside the bundle and Claude Code's settings pointing at them.
+function installHooks() {
+  try {
+    syncRuntime(appRoot, runtimeDir(), process.execPath);
+    if (ensureHooks(settingsFile(), hookCommand(runtimeDir())) === 'error') {
+      dialog.showErrorBox('Pixel Office', `Không đọc được ${settingsFile()} nên chưa thêm hook. Sửa lỗi JSON trong file đó rồi mở lại app.`);
+    }
+  } catch (err) {
+    dialog.showErrorBox('Pixel Office', `Không cài được hook: ${err.message}`);
+  }
+}
+
 function showWindow() { if (!win) createWindow(); else { win.showInactive(); win.moveTop(); } }
 
 if (!app.requestSingleInstanceLock()) {
@@ -75,11 +90,17 @@ if (!app.requestSingleInstanceLock()) {
       app.quit();
       return;
     }
+    if (app.isPackaged) installHooks();
     tray = new Tray(trayIcon());
     tray.setToolTip('Pixel Office');
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: 'Hiện / Ẩn', click: () => (win && win.isVisible() ? win.hide() : showWindow()) },
       { label: 'Về 800×600', click: resetSize },
+      ...(app.isPackaged ? [
+        { label: 'Chạy cùng Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin,
+          click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }) },
+        { label: 'Gỡ hook Claude Code & thoát', click: () => { uninstallHooks(settingsFile()); app.exit(0); } },
+      ] : []),
       { type: 'separator' },
       { label: 'Thoát', click: () => app.exit(0) },
     ]));

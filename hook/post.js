@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
@@ -24,10 +25,18 @@ export function appHome() {
   return process.env.PIXEL_OFFICE_HOME || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 }
 
-// Start the Electron app detached so it outlives the caller.
+// The installed app records its exe in app.json next to the hook files; a dev checkout runs electron on itself.
+export function launchCommand(home) {
+  try {
+    const { exe } = JSON.parse(fs.readFileSync(path.join(home, 'app.json'), 'utf8'));
+    if (exe) return { cmd: exe, args: [] };
+  } catch { /* not installed */ }
+  return { cmd: createRequire(path.join(home, 'package.json'))('electron'), args: [home] };
+}
+
+// Start the app detached so it outlives the caller.
 export function ensureApp() {
-  const home = appHome();
-  const electron = createRequire(path.join(home, 'package.json'))('electron');
-  const child = spawn(electron, [home], { detached: true, stdio: 'ignore', windowsHide: false });
+  const { cmd, args } = launchCommand(appHome());
+  const child = spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: false });
   child.unref();
 }
