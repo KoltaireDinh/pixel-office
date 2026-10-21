@@ -132,3 +132,22 @@ Vòng đời một nhà (lựa chọn của tôi):
 - Tối ưu vẽ (chỉ vẽ lại khi khung hình đổi, 6 fps).
 - Cách vẽ cầu thang và đường đi giữa 2 tầng.
 - Test: tối thiểu có test cho hook.js (rút gọn sự kiện, nuốt lỗi, không bao giờ treo) và cho máy trạng thái (sự kiện → hành động).
+
+---
+
+## Bản 2 (2026-10-21): khung cảnh nhìn chéo từ trên xuống, cửa sổ kéo giãn
+
+Người dùng yêu cầu: "tôi muốn có thể resize, cái mà hover vào cạnh rồi kéo ra ấy, tôi muốn là 1 khung cảnh hoàn chỉnh, từ góc nhìn bird view, size dành cho pc desktop 800 x 600", kiểu "như stardew valley". Người dùng đã duyệt bản phác thảo `.superpowers/brainstorm/.../content/topdown.html` ("đúng rồi làm giúp tôi"). Phần này **thay** phần Phong cách / cửa sổ ở trên. Hook, server, não nhân vật, bong bóng và câu nói giữ nguyên.
+
+- **Góc nhìn:** nhìn chéo từ trên xuống kiểu Stardew Valley. Tường sau có chiều cao, đồ đạc có mặt trên và mặt trước, nhân vật chibi quay mặt về phía người xem. Giữ bảng màu đêm ấm, ánh sáng theo bậc có dither, viền màu tối.
+- **Cảnh:** logic **400×300 px**, mặc định cửa sổ **800×600** (×2). Gồm phòng sếp (trên trái), phòng làm việc 4 bàn 2×2 (trên phải, Na/Tí trên, Mây/Hồng dưới, Hồng có giá vẽ), phòng khách (sofa, bàn trà, máy arcade, ghế lười), bếp (máy pha cà phê, tủ lạnh, bàn ăn), sân vườn (trăng, sao, hàng rào, đèn, ghế đá, hồ, mèo, đom đóm). Các phòng nối nhau bằng cửa.
+- **Cửa sổ:** không viền, luôn nổi trên cùng, **kéo cạnh để đổi kích thước**, khoá tỉ lệ 4:3, nhỏ nhất 400×300. Cảnh phóng theo **bội số nguyên** lớn nhất vừa cửa sổ (pixel sắc nét), phần dư là viền tối. Nhớ vị trí và kích thước. Kéo cửa sổ bằng dải trên cùng. Khay hệ thống: Hiện/Ẩn, Về 800×600, Thoát. (Lựa chọn của tôi: bỏ bo góc trong suốt vì Windows không cho kéo cạnh cửa sổ trong suốt.)
+- **Di chuyển:** mỗi nhân vật có vị trí thật trong nhà và đi bộ theo lối đi qua các cửa (24 px/s) tới chỗ hợp với hành động:
+  - làm việc / đọc / xem video / render / gọi điện / lỗi → ghế ở bàn mình
+  - chờ bạn → đứng cạnh bàn, giơ tay, dấu "!"
+  - đưa tin → đi tới bàn người nhận, cầm phong bì, rồi quay về bàn
+  - nghỉ → chỗ nghỉ riêng: Sếp Bơ uống cà phê ở bàn ăn trong bếp, Na pha cà phê ở quầy bếp, Mây ngồi sofa, Tí chơi máy arcade, Hồng ngồi ghế đá ngoài vườn
+  - ngủ gật → nằm trên sofa hoặc ghế lười
+  - vào nhà / ra về → từ cổng vườn vào, hoặc ra cổng rồi biến mất
+  (Chỗ nghỉ từng người là lựa chọn của tôi.)
+- **Chữ:** bảng nhỏ góc trên trái "REELS SQUAD · N AGENT · trạng thái", không che bảng PLAN. Bảng tin ở đáy. Bong bóng phóng theo tỉ lệ cảnh.
